@@ -1,0 +1,5 @@
+package huynhpham;
+
+public interface QueueInterface {
+
+}

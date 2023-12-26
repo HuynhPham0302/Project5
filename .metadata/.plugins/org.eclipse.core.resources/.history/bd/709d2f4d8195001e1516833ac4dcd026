@@ -1,0 +1,63 @@
+package huynhpham;
+
+//
+//	Name: Pham, Huynh
+//	Project: 5
+//	Due: 12/08/2023
+//	Course: cs-2400-02-f23
+//
+//	Description:
+//		The project uses a Graph to store airport and distance information. 
+//		Use Dijkstra's algorithm to find the shortest distances between airports
+//
+
+/**
+ * The PriorityQueueInterface represents the basic operations that a priority queue
+ * data structure should support.
+ *
+ * @param <T> The type of elements stored in the priority queue.
+ */
+public interface PriorityQueueInterface<T>{
+	
+	/**
+     * Adds a new entry to the priority queue.
+     *
+     * @param newEntry The element to be added.
+     */
+	public void add(T newEntry);
+	
+	/**
+     * Removes and returns the highest-priority element from the priority queue.
+     *
+     * @return The highest-priority element, or null if the priority queue is empty.
+     */
+	public T remove();
+	
+	/**
+     * Retrieves the highest-priority element from the priority queue without removing it.
+     *
+     * @return The highest-priority element, or null if the priority queue is empty.
+     */
+	public T peek();
+	
+	/**
+     * Checks if the priority queue is empty.
+     *
+     * @return true if the priority queue is empty, false otherwise.
+     */
+	public boolean isEmpty();
+	
+	/**
+     * Gets the number of elements currently in the priority queue.
+     *
+     * @return The number of elements in the priority queue.
+     */
+	public int getSize();
+	
+	**
+    * Removes all elements from the priority queue.
+    */
+   public void clear();
+	public void clear();
+
+}

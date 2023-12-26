@@ -1,0 +1,399 @@
+package huynhpham;
+
+
+//
+// 			Name: Pham, Huynh
+// 			Project: 5
+// 			Due: 12/08/2023
+// 			Course: cs-2400-02-f23
+//
+//
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+public class HashedDictionary<K, V> implements DictionaryInterface<K, V> {
+	//class constants
+	private static final int DEFAULT_CAPACITY = 100;
+	private static final int MAX_CAPACITY = 10000;
+	private final Entry<K, V> AVAILABLE  = new Entry<>(null, null);
+	
+	private Entry<K, V>[] hashTable;
+	private int tableSize;
+	private int numberOfEntries;
+	private int collisionCount;
+	private boolean integrityOK = false;
+	
+	/**
+	 * Checks the integrity of the dictionary object to ensure it is properly initialized.
+	 * If the integrity check fails, a SecurityException is thrown.
+	 *
+	 * @throws SecurityException If the dictionary is not initialized properly.
+	 */
+	private void checkIntegrity() {
+        if (!integrityOK) {
+            throw new SecurityException("Dictionary is not initialized properly.");
+        }
+    }
+	
+	private int checkCapacity(int initialCapacity) {
+        if (initialCapacity < DEFAULT_CAPACITY) {
+            return DEFAULT_CAPACITY;
+        } else if (initialCapacity > MAX_CAPACITY) {
+            return MAX_CAPACITY;
+        } else {
+            return initialCapacity;
+        }
+    }
+	
+	/**
+     * Construct a hash table with the default capacity.
+     */
+	public HashedDictionary() {
+		this(DEFAULT_CAPACITY);
+	}
+	
+	/**
+     * Construct a hash table with the given initial capacity.
+     * 
+     * @param initialCapacity the initial capacity of the hash table.
+     */
+	public HashedDictionary(int initialCapacity) {
+		initialCapacity = checkCapacity(initialCapacity);
+		tableSize = getNextPrime(initialCapacity);
+		@SuppressWarnings("unchecked")
+		Entry<K, V>[] temp = (Entry<K, V>[]) new Entry[tableSize];
+        hashTable = temp;
+        integrityOK = true;
+        numberOfEntries = 0;
+	}
+	
+	/**
+     * Class to represent an entry in the hash table.
+     */
+    private final class Entry<S, T> {
+        private S key;
+        private T value;
+
+        private Entry(S searchKey, T dataValue) {
+            key = searchKey;
+            value = dataValue;
+        }
+
+        public T getValue() {
+            return value;
+        }
+
+        public void setValue(T val) {
+            this.value = val;
+        }
+
+        public S getKey() {
+            return key;
+        }
+    }
+    
+    /**
+     * Check if a number is prime.
+     * 
+     * @param number the number to be checked.
+     * @return true if the number is prime, false otherwise.
+     */
+    private boolean isPrime(int number) {
+        if (number <= 1) {
+            return false;
+        }
+
+        if (number <= 3) {
+            return true;
+        }
+
+        if (number % 2 == 0 || number % 3 == 0) {
+            return false;
+        }
+
+        for (int i = 5; i * i <= number; i += 6) {
+            if (number % i == 0 || number % (i + 2) == 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+    
+    /**
+     * Find the smallest prime number that is greater than the given value.
+     * 
+     * @param value the value to be checked.
+     * @return the smallest prime number that is greater than the given value.
+     */
+    private int getNextPrime(int value) {
+        if (value % 2 == 0) {
+            value++;
+        }
+
+        while (!isPrime(value)) {
+            value += 2;
+        }
+        return value;
+    }
+    
+    
+    /**
+     * Returns the index of the specified key in the hash table.
+     * 
+     * @param key the key to be located.
+     * @return the index of the specified key in the hash table.
+     */
+    private int getHashIndex(K key) {
+        int hash = key.hashCode() % tableSize;
+
+        if (hash < 0) {
+            hash = hash + tableSize;
+        }
+
+        return hash;
+    }
+    
+    
+    /**
+     * Adds a new entry to this dictionary. If the given search key already exists
+     * in the dictionary, replaces the corresponding value.
+     * 
+     * @param key   An object search key of the new entry.
+     * @param value An object associated with the search key.
+     * @return Either null if the new entry was added to the dictionary or the value
+     *         that was associated with key if that value was replaced.
+     */
+    @Override
+    public V add(K key, V value) {
+    	checkIntegrity();
+        if (key == null || value == null) {
+            throw new IllegalArgumentException("Key and value cannot be null.");
+        } else {
+            V result;
+            int index = getHashIndex(key);
+
+            // Case 1: The key is not in the table
+            if ((hashTable[index] == null) || hashTable[index] == AVAILABLE) {
+                hashTable[index] = new Entry<>(key, value);
+                numberOfEntries++;
+                result = null;
+            }
+            // Case 2: The key is in the table
+            else if (hashTable[index].getKey().equals(key)) {
+                result = hashTable[index].getValue();
+                hashTable[index].setValue(value);
+            }
+            // Case 3: Collision
+            else {
+                // Linear probing
+                index = (index + 1) % tableSize;
+                while ((hashTable[index] != null) // The expected location is occupied
+                        && (hashTable[index] != AVAILABLE) // The expected location is not available
+                        && !hashTable[index].getKey().equals(key)) // The key is not in the table
+                {
+                    index = (index + 1) % tableSize;
+                }
+
+                // Found an empty location
+                if ((hashTable[index] == null) || hashTable[index] == AVAILABLE) {
+                    hashTable[index] = new Entry<>(key, value);
+                    numberOfEntries++;
+                    result = null;
+                    collisionCount++;
+                }
+                // Found the key
+                else {
+                    result = hashTable[index].getValue();
+                    hashTable[index].setValue(value);
+                }
+            }
+
+            return result;
+        }
+    }
+    
+    /**
+     * Retrieves from this dictionary the value associated with a given search key.
+     * 
+     * @param key An object search key of the entry to be retrieved.
+     * @return Either the value that is associated with the search key or null if no
+     *         such object exists.
+     */
+    @Override
+    public V getValue(K key) {
+    	checkIntegrity();
+        V result = null;
+        int index = getHashIndex(key);
+        while ((hashTable[index] != null) && (hashTable[index] != AVAILABLE)
+                && !hashTable[index].getKey().equals(key)) {
+            index = (index + 1) % tableSize;
+        }
+
+        if ((hashTable[index] != null) && (hashTable[index] != AVAILABLE)) {
+            result = hashTable[index].getValue();
+        }
+
+        return result;
+    }
+    
+    /**
+     * Get an iterator that traverses all keys in this dictionary.
+     * 
+     * @return an iterator that traverses all keys in this dictionary.
+     */
+    @Override
+    public Iterator<K> getKeyIterator() {
+        return new KeyIterator();
+    }
+    
+    /**
+     * Override the iterator() method inherited from Iterable<K>.
+     * 
+     * @return an iterator that traverses all keys in this dictionary.
+     */
+    @Override
+    public Iterator<K> iterator() {
+        return getKeyIterator();
+    }
+    
+    /**
+     * Iterator for the keys.
+     */
+    private class KeyIterator implements Iterator<K> {
+        private int currentIndex;
+        private int numberLeft;
+
+        private KeyIterator() {
+            currentIndex = 0;
+            numberLeft = numberOfEntries;
+        }
+
+        public boolean hasNext() {
+            return numberLeft > 0;
+        }
+
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * Get the next key in the hash table.
+         * 
+         * @return the next key in the hash table.
+         */
+        public K next() {
+            K result = null;
+            if (hasNext()) {
+                // Find the next non-empty location
+                while ((hashTable[currentIndex] == null) || (hashTable[currentIndex] == AVAILABLE)) {
+                    currentIndex++;
+                }
+                result = hashTable[currentIndex].getKey();
+                numberLeft--;
+                currentIndex++;
+            } else {
+                throw new NoSuchElementException();
+            }
+            return result;
+        }
+    }
+    
+    /**
+     * Get the number of collisions in this dictionary.
+     * 
+     * @return the number of collisions in this dictionary.
+     */
+    @Override
+    public int getCollisionCount() {
+        return collisionCount;
+    }
+    
+ // The following methods are leaved unimplemented on purpose.
+    @Override
+    public V remove(K key) {
+        throw new UnsupportedOperationException("Unimplemented method 'remove'");
+    }
+
+    @Override
+    public boolean contains(K key) {
+        checkIntegrity();
+        
+        // Find the hash index for the key
+        int index = getHashIndex(key);
+        
+        // Search for the key in the hash table
+        while ((hashTable[index] != null) && (hashTable[index] != AVAILABLE)) {
+            if (hashTable[index].getKey().equals(key)) {
+                return true; // Key found
+            }
+            index = (index + 1) % tableSize; // Move to the next index
+        }
+        
+        return false; // Key not found
+    }
+
+    @Override
+    public Iterator<V> getValueIterator() {
+        return new ValueIterator();
+    }
+    
+    private class ValueIterator implements Iterator<V> {
+        private int currentIndex;
+        private int numberLeft;
+
+        public ValueIterator() {
+            currentIndex = 0;
+            numberLeft = numberOfEntries;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return numberLeft > 0;
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * Get the next value in the hash table.
+         *
+         * @return the next value in the hash table.
+         */
+        @Override
+        public V next() {
+            V result = null;
+            if (hasNext()) {
+                // Find the next non-empty location
+                while ((hashTable[currentIndex] == null) || (hashTable[currentIndex] == AVAILABLE)) {
+                    currentIndex++;
+                }
+                result = hashTable[currentIndex].getValue();
+                numberLeft--;
+                currentIndex++;
+            } else {
+                throw new NoSuchElementException();
+            }
+            return result;
+        }
+    }
+
+    @Override
+    public boolean isEmpty() {
+        throw new UnsupportedOperationException("Unimplemented method 'isEmpty'");
+    }
+
+    @Override
+    public void clear() {
+        throw new UnsupportedOperationException("Unimplemented method 'clear'");
+    }
+    
+    @Override
+    public int getSize() {
+    	return numberOfEntries;
+    }
+}
+

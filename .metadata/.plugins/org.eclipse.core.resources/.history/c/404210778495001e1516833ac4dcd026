@@ -1,0 +1,95 @@
+package huynhpham;
+
+//
+//	Name: Pham, Huynh
+//	Project: 5
+//	Due: 12/08/2023
+//	Course: cs-2400-02-f23
+//
+//	Description:
+//		The project uses a Graph to store airport and distance information. 
+//		Use Dijkstra's algorithm to find the shortest distances between airports
+//
+
+
+import java.util.Iterator;
+
+public interface DictionaryInterface<K, V> extends Iterable<K> {
+	/**
+     * Adds a new entry to this dictionary. If the given search key already exists
+     * in the dictionary, replaces the corresponding value.
+     * 
+     * @param key   An object search key of the new entry.
+     * @param value An object associated with the search key.
+     * @return Either null if the new entry was added to the dictionary or the value
+     *         that was associated with key if that value was replaced.
+     */
+	public V add(K key, V value);
+
+	/**
+     * Retrieves from this dictionary the value associated with a given search key.
+     * 
+     * @param key An object search key of the entry to be retrieved.
+     * @return Either the value that is associated with the search key or null if no
+     *         such object exists.
+     */
+	public V getValue(K key);
+	
+	/**
+	 * Return an iterator that traverses all keys in this dictionary.
+	 * 
+	 * @return An iterator that provides sequential access to the keys in the
+	 */
+	public Iterator<K> getKeyIterator();
+
+	/**
+	 * Counts the number of collisions in the hash table.
+	 * 
+	 * @return The number of collisions in the hash table.
+	 */
+	public int getCollisionCount();
+
+	/**
+	 * Throw UnsupportedOperationException.
+	 * 
+	 * @param key The key of the entry to remove.
+	 * @return The value associated with the key.
+	 */
+	public V remove(K key);
+
+	/**
+	 * Throw UnsupportedOperationException.
+	 * 
+	 * @param key The key of the entry to retrieve.
+	 * @return True if the key is in the dictionary, and false otherwise.
+	 */
+	public boolean contains(K key);
+
+	/**
+	 * Throw UnsupportedOperationException.
+	 * 
+	 * @return An iterator that traverses all values in this dictionary.
+	 */
+	public Iterator<V> getValueIterator();
+
+	/**
+	 * Throw UnsupportedOperationException.
+	 * 
+	 * @return True if this dictionary contains no entries, and false otherwise.
+	 */
+	public boolean isEmpty();
+
+	/**
+	 * Throw UnsupportedOperationException.
+	 * 
+	 * @return The number of entries in this dictionary.
+	 */
+	public int getSize();
+
+	/**
+	 * Throw UnsupportedOperationException.
+	 */
+	public void clear();
+}
+
+

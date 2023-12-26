@@ -1,0 +1,28 @@
+package huynhpham;
+
+public interface GraphInterface<T> extends BasicGraphInterface<T>, GraphAlgorithmsInterface<T>{
+	
+	//public boolean addVertex(T vertexLabel);
+	
+	//public boolean addEdge(T begin, T end, double edgeWeight);
+	
+	//public boolean addEdge(T begin, T end);
+	
+	//public boolean hasEdge(T begin, T end);
+	
+	//public boolean isEmpty();
+	
+	//public void clear();
+	
+	//public int getNumberOfVertices();
+	
+	//public int getNumberOfEdges();
+	
+	//public QueueInterface<T> getBreadthFirstTraversal(T origin);
+	
+	public VertexInterface<T> getVertex(T vertexLabel);
+	
+	//public double getCheapestPath(T originVertex, T endVertex, StackInterface<T> path);
+
+	boolean addVertex(T vertexLabel, String airportInfo);
+}
